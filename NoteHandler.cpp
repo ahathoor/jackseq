@@ -28,16 +28,21 @@ NoteHandler::NoteHandler() {
 
     commands["rewind"] = &NoteHandler::rewind;
     commands["stop"] = &NoteHandler::stop;
+
+    trigger t = {"rewind", 0, Note(0,144,60,0)};
+    triggers.push_back(t);
 }
 
-void NoteHandler::sendCommand(std::string command) {
+void NoteHandler::sendCommand(std::string command, int arg) {
     if(commands.find(command) != commands.end())
-        command_queue.push_back(command);
+        command_queue.push_back(std::make_pair(command,arg));
 }
 
 void NoteHandler::JackEngineTickHandler(int nframes) {
-    for(auto cmd_name : command_queue) {
-        CALL_MEMBER_FN(*this, commands[cmd_name])();
+    if((int)internal_frame % 48000 < 2)
+        std::cout << internal_frame/48000 << "s" << std::endl;
+    for(auto cmd_pair : command_queue) {
+        CALL_MEMBER_FN(*this, commands[cmd_pair.first])(cmd_pair.second);
         command_queue.clear();
     }
 
@@ -50,10 +55,6 @@ void NoteHandler::JackEngineTickHandler(int nframes) {
             play_queue[it->first].push_back(note);
         }
     }
-
-    if(internal_frame > 48000) {
-        sendCommand("rewind");
-    }
 }
 
 void NoteHandler::JackEngineNoteHandler(Note *note, int offset) {
@@ -65,7 +66,12 @@ void NoteHandler::JackEngineNoteHandler(Note *note, int offset) {
 }
 
 void NoteHandler::JackEngineTriggerHandler(Note *note, int offset) {
-    std::cout << "triggered" << std::endl;
+    for(trigger t : triggers) {
+        if(t.note.channel == note->channel &&
+                t.note.note == note->note &&
+                t.note.type == note->type)
+            this->sendCommand(t.command,t.arg);
+    }
 }
 
 void NoteHandler::JackEnginePlayFunctionHandler(void(*play_fn)(Note*, int)) {

@@ -42,5 +42,8 @@ int Note::is_noteon() {
 uint32_t Note::next_id = 0;
 
 void Note::print_note() {
-    std::cout << "A note: " << this->note << std::endl;
+    std::cout << "CC: " << this->note;
+    std::cout << ", Type: " << this->type;
+    std::cout << ", Channel: " << this->channel;
+    std::cout << ", Velocity: " << this->velocity << std::endl;
 }

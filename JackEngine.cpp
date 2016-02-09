@@ -118,7 +118,7 @@ int JackEngine::process(jack_nframes_t nframes) {
     trigbuf = jack_port_get_buffer(trigger_port, nframes);
     for (uint32_t i = 0; i < jack_midi_get_event_count(trigbuf); i++) {
         jack_midi_event_t event;
-        jack_midi_event_get(&event, inbuf, i);
+        jack_midi_event_get(&event, trigbuf, i);
         Note *n = new Note(event.buffer);
         this->callbackProvider->JackEngineTriggerHandler(n, event.time);
     }
