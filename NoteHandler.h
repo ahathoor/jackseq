@@ -32,8 +32,6 @@ public:
     void JackEngineNoteHandler(Note*, int offset);
     void JackEngineTriggerHandler(Note*, int offset);
     void JackEnginePlayFunctionHandler(void (*play_fn)(Note*, int offset));
-private:
-    void receive_tick(int nframes);
 };
 
 #endif /* NOTEHANDLER_H */
