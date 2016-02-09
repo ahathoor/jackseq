@@ -15,13 +15,6 @@
 #include "NoteHandler.h"
 #include <iostream>
 
-void receive_tick(int nframes);
-void receive_note(Note* note, int offset);
-void receive_trig(Note* note, int offset);
-void play_notes(void(*play_function)(Note*, int));
-uint32_t internal_frame = 0;
-int window_size = 0;
-
 NoteHandler::NoteHandler() {
     state.pass_through = true;
     state.recording = true;
