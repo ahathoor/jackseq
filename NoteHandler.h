@@ -15,7 +15,8 @@
 #define NOTEHANDLER_H
 
 #include "Note.h"
-#include "JackInterface.h"
+#include "JackEngine.h"
+#include "IJackEngineCallbackProvider.h"
 #include <string>
 
 typedef struct {
@@ -24,11 +25,17 @@ typedef struct {
     bool rolling = true;
 } NoteHandlerState;
 
-class NoteHandler {
+class NoteHandler : IJackEngineCallbackProvider{
 public:
     NoteHandler();
+    ~NoteHandler() {};
+    void JackEngineTickHandler(int nframes);
+    void JackEngineNoteHandler(Note*, int offset);
+    void JackEngineTriggerHandler(Note*, int offset);
+    void JackEnginePlayFunctionHandler(void (*play_fn)(Note*, int offset));
 private:
     void receive_tick(int nframes);
+    JackEngine *ji;
 
 };
 

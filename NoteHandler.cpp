@@ -12,15 +12,14 @@
  */
 
 #include "NoteHandler.h"
-#include "JackInterface.h"
+#include "JackEngine.h"
 #include <map>
 #include <vector>
 #include <iostream>
 #include <string>
 
+NoteHandlerState state;
 
-std::map<double, std::vector<Note*>> store;
-std::map<double, std::vector<Note*>> play_queue;
 void receive_tick(int nframes);
 void receive_note(Note* note, int offset);
 void receive_trig(Note* note, int offset);
@@ -29,10 +28,8 @@ void play_notes(void(*play_function)(Note*, int));
 uint32_t internal_frame = 0;
 int window_size = 0;
 
-JackInterface ji = JackInterface(receive_tick, receive_note, receive_trig, play_notes);
-NoteHandlerState state;
-
-
+std::map<double, std::vector<Note*>> store;
+std::map<double, std::vector<Note*>> play_queue;
 std::map<std::string, void(*)()> commands;
 std::vector<std::string> command_queue;
 
@@ -41,7 +38,9 @@ void stop() { state.rolling = false; }
 void start() { state.rolling = true; }
 
 NoteHandler::NoteHandler() {
-    ji.init();
+    ji = new JackEngine(this);
+    ji->init();
+
     state.pass_through = true;
     state.recording = true;
     state.rolling = true;
@@ -56,7 +55,7 @@ void sendCommand(std::string command) {
         command_queue.push_back(command);
 }
 
-void receive_tick(int nframes) {
+void NoteHandler::JackEngineTickHandler(int nframes) {
     for(auto cmd_name : command_queue) {
         commands[cmd_name]();
         command_queue.clear();
@@ -77,7 +76,7 @@ void receive_tick(int nframes) {
     }
 }
 
-void receive_note(Note* note, int offset) {
+void NoteHandler::JackEngineNoteHandler(Note *note, int offset) {
     double timeForNote = internal_frame + offset;
     if (state.recording)
         store[timeForNote].push_back(note);
@@ -85,14 +84,14 @@ void receive_note(Note* note, int offset) {
         play_queue[timeForNote].push_back(note);
 }
 
-void receive_trig(Note* note, int offset) {
+void NoteHandler::JackEngineTriggerHandler(Note *note, int offset) {
     std::cout << "triggered" << std::endl;
 }
 
-void play_notes(void(*play_function)(Note*, int)) {
+void NoteHandler::JackEnginePlayFunctionHandler(void(*play_fn)(Note*, int)) {
     for(auto it = play_queue.begin(); it != play_queue.end(); it++) {
         for (auto &note : it->second) {
-            play_function(note, it->first - internal_frame);
+            play_fn(note, it->first - internal_frame);
         }
     }
     play_queue.clear();
