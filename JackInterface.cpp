@@ -29,18 +29,17 @@ jack_port_t *trigger_port;
 
 int process(jack_nframes_t nframes, void* arg);
 
-void (*TickHandlingFunction)(int frames);
-void (*NoteHandlingFunction)(Note*, int offset);
-void (*TriggerHandlingFunction)(Note*,  int offset);
-void (*NoteInputFunction)(void (*)(Note*, int offset));
+TickFn TickHandlingFunction;
+NoteFn NoteHandlingFunction;
+TrigFn TriggerHandlingFunction;
+PlayFn NoteInputFunction;
 
 void play_fn(Note* note, int offset) {
     jack_midi_data_t data[] = {(unsigned char)(note->channel | note->type),(unsigned char)note->note, (unsigned char)note->velocity};
     jack_midi_event_write(outbuf, offset, data, 3);
 }
 
-JackInterface::JackInterface(void (*tick_fn)(int frames),               void (*note_fn)(Note*, int offset),
-                             void (*trig_fn)(Note*,  int offset),       void (*play_fn)(void (*)(Note*, int offset))) {
+JackInterface::JackInterface(TickFn tick_fn, NoteFn note_fn, TrigFn trig_fn, PlayFn play_fn) {
     TickHandlingFunction = tick_fn;
     NoteHandlingFunction = note_fn;
     TriggerHandlingFunction = trig_fn;

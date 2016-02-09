@@ -14,9 +14,14 @@
 #ifndef JACKINTERFACE_H
 #define JACKINTERFACE_H
 
+typedef void (*TickFn)(int nframes);
+typedef void (*NoteFn)(Note*, int offset);
+typedef void (*TrigFn)(Note*,  int offset);
+typedef void (*PlayFn)(void (*)(Note*, int offset));
+
 class JackInterface {
 public:
-    JackInterface(void (*tick_fn)(int frames),
+    JackInterface(TickFn tick_fn,
                   void (*note_fn)(Note*, int offset),
                   void (*trig_fn)(Note*,  int offset),
                   void (*play_fn)(void (*)(Note*, int offset))
