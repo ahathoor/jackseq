@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-c -Wall -std=c++11
-LDFLAGS= -ljack -I.
+LDFLAGS= -ljack -I. -std=c++11
 SOURCES= JackInterface.cpp NoteHandler.cpp Note.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=jackseq

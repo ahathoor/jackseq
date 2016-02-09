@@ -16,11 +16,19 @@
 
 #include "Note.h"
 #include "JackInterface.h"
+#include <string>
+
+typedef struct {
+    bool pass_through = true;
+    bool recording = true;
+    bool rolling = true;
+} NoteHandlerState;
 
 class NoteHandler {
 public:
     NoteHandler();
 private:
+    void receive_tick(int nframes);
 
 };
 
