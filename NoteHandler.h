@@ -17,6 +17,8 @@
 #include "Note.h"
 #include "IJackEngineCallbackProvider.h"
 #include <string>
+#include <map>
+#include <vector>
 
 typedef struct {
     bool pass_through = true;
@@ -32,6 +34,21 @@ public:
     void JackEngineNoteHandler(Note*, int offset);
     void JackEngineTriggerHandler(Note*, int offset);
     void JackEnginePlayFunctionHandler(void (*play_fn)(Note*, int offset));
+    void sendCommand(std::string command);
+private:
+    NoteHandlerState state;
+    uint32_t internal_frame = 0;
+    int window_size = 0;
+
+    std::map<double, std::vector<Note*>> store;
+    std::map<double, std::vector<Note*>> play_queue;
+    std::map<std::string, void(NoteHandler::*)()> commands;
+    std::vector<std::string> command_queue;
+
+    void rewind() {internal_frame = 0;};
+    void seek(int where) {internal_frame = where;};
+    void stop() { state.rolling = false;};
+    void start() { state.rolling = true;};
 };
 
 #endif /* NOTEHANDLER_H */
