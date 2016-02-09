@@ -12,7 +12,6 @@
  */
 
 #include "NoteHandler.h"
-#include "JackEngine.h"
 #include <map>
 #include <vector>
 #include <iostream>
@@ -38,9 +37,6 @@ void stop() { state.rolling = false; }
 void start() { state.rolling = true; }
 
 NoteHandler::NoteHandler() {
-    ji = new JackEngine(this);
-    ji->init();
-
     state.pass_through = true;
     state.recording = true;
     state.rolling = true;
