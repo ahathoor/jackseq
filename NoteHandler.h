@@ -29,6 +29,7 @@ typedef struct {
     bool pass_through = true;
     bool recording = true;
     bool rolling = true;
+    bool wait_for_input = true;
 } NoteHandlerState;
 
 class NoteHandler : public IJackEngineCallbackProvider{
@@ -39,7 +40,9 @@ public:
     void JackEngineNoteHandler(Note*, int offset);
     void JackEngineTriggerHandler(Note*, int offset);
     void JackEnginePlayFunctionHandler(void (*play_fn)(Note*, int offset));
-    void sendCommand(std::string command, int arg);
+    void sendCommand(std::string command, double arg);
+    void TriggerLearn(std::string command, double arg);
+    void TriggerUnlearn(std::string command, double arg);
 private:
     NoteHandlerState state;
     double internal_frame = 0;
@@ -56,6 +59,8 @@ private:
     std::map<std::string, void(NoteHandler::*)(double arg)> commands;
     std::vector<std::pair<std::string, double>> command_queue;
     std::vector<trigger> triggers;
+    std::pair<std::string, double> trigger_learning;
+    std::pair<std::string, double> trigger_unlearning;
 
     void rewind(double arg) {internal_frame = 0;};
     void seek(double where) {internal_frame = where;};

@@ -20,6 +20,7 @@
 
 #include "NoteHandler.h"
 #include <iostream>
+#include <algorithm>
 
 NoteHandler::NoteHandler() {
     state.pass_through = true;
@@ -28,23 +29,34 @@ NoteHandler::NoteHandler() {
 
     commands["rewind"] = &NoteHandler::rewind;
     commands["stop"] = &NoteHandler::stop;
+    commands["start"] = &NoteHandler::start;
+    commands["seek"] = &NoteHandler::seek;
 
-    trigger t = {"rewind", 0, Note(0,144,60,0)};
-    triggers.push_back(t);
+    TriggerLearn("seek", 0);
 }
 
-void NoteHandler::sendCommand(std::string command, int arg) {
+void NoteHandler::sendCommand(std::string command, double arg) {
     if(commands.find(command) != commands.end())
         command_queue.push_back(std::make_pair(command,arg));
 }
 
+void NoteHandler::TriggerLearn(std::string command, double arg) {
+    if(commands.find(command) != commands.end())
+        trigger_learning = std::make_pair(command, arg);
+}
+
+void NoteHandler::TriggerUnlearn(std::string command, double arg) {
+    if(commands.find(command) != commands.end())
+        trigger_unlearning = std::make_pair(command, arg);
+}
+
 void NoteHandler::JackEngineTickHandler(int nframes) {
-    if((int)internal_frame % 48000 < 2)
-        std::cout << internal_frame/48000 << "s" << std::endl;
     for(auto cmd_pair : command_queue) {
         CALL_MEMBER_FN(*this, commands[cmd_pair.first])(cmd_pair.second);
         command_queue.clear();
     }
+    if((int)internal_frame % 48000 < 2)
+        std::cout << internal_frame/48000 << "s" << std::endl;
 
     if(!state.rolling) return;
     internal_frame += nframes;
@@ -58,19 +70,34 @@ void NoteHandler::JackEngineTickHandler(int nframes) {
 }
 
 void NoteHandler::JackEngineNoteHandler(Note *note, int offset) {
+    if(state.wait_for_input) {
+        state.rolling = true;
+        state.wait_for_input = false;
+    }
     double timeForNote = internal_frame + offset;
-    if (state.recording)
+    if (state.rolling && state.recording)
         store[timeForNote].push_back(note);
     if (state.pass_through)
         play_queue[timeForNote].push_back(note);
 }
 
 void NoteHandler::JackEngineTriggerHandler(Note *note, int offset) {
+    std::string a = trigger_unlearning.first;
+    double b = trigger_unlearning.second;
+    triggers.erase(std::remove_if(triggers.begin(), triggers.end(),
+                           [a,b](trigger t) { return (t.command == a && t.arg == b); }), triggers.end());
+
     for(trigger t : triggers) {
         if(t.note.channel == note->channel &&
                 t.note.note == note->note &&
                 t.note.type == note->type)
             this->sendCommand(t.command,t.arg);
+    }
+
+    if(commands.find(trigger_learning.first) != commands.end()) {
+        trigger t = {trigger_learning.first, trigger_learning.second, Note(*note)};
+        triggers.push_back(t);
+        trigger_learning.first = "";
     }
 }
 
