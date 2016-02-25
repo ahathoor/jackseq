@@ -69,6 +69,7 @@ private:
     void toggle_recording(double arg) { state.recording = !state.recording;}
     void toggle_rolling(double arg) { state.rolling = !state.rolling;}
     void toggle_waiting(double arg) { state.wait_for_input = !state.wait_for_input;}
+    void toggle_passthrough(double arg) { state.pass_through = !state.pass_through;}
     void clear_notes(double arg) { store.clear() ;}
 };
 

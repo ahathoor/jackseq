@@ -29,6 +29,7 @@ NoteHandler::NoteHandler() {
     commands["toggle_recording"] = &NoteHandler::toggle_recording;
     commands["toggle_rolling"] = &NoteHandler::toggle_rolling;
     commands["toggle_waiting"] = &NoteHandler::toggle_waiting;
+    commands["toggle_passthrough"] = &NoteHandler::toggle_passthrough;
     commands["clear_notes"] = &NoteHandler::clear_notes;
 }
 

@@ -55,10 +55,9 @@ int main(int argc, char *argv[])
              if(ch == 's') nh->sendCommand("toggle_rolling", 0);
              if(ch == 'a') nh->sendCommand("seek", 0);
              if(ch == 'c') nh->sendCommand("clear_notes", 0);
+             if(ch == 'p') nh->sendCommand("toggle_passthrough", 0);
 
-             if(ch == 'i') nh->TriggerLearn("toggle_rolling", 0);
-             if(ch == 'o') nh->TriggerLearn("seek", 0);
-             if(ch == 'p') nh->TriggerLearn("toggle_recording", 0);
+             if(ch == 'l') nh->TriggerLearn("seek", 0);
          }
     }
 
@@ -96,15 +95,19 @@ void draw(){
         addstr("WAITING_FOR_INPUT");
 
         addstr("\n");
+        addstr(nh->state.pass_through ? "[x]" : "[ ]");
+        addstr("PASS_THROUGH");
+
+        addstr("\n");
         addstr("\n");
         addstr("(q) quit (r) Toggle recording (w) toggle wait_for_input");
 
         addstr("\n");
-        addstr("(s) stop/play (a) rewind (c) clear notes");
+        addstr("(s) stop/play (a) rewind (c) clear notes (p) toggle passthrough");
 
         addstr("\n");
         addstr("\n");
-        addstr("(i) MIDI learn stop/play (o) MIDI learn rewind (p) MIDI learn recording");
+        addstr("(l) MIDI learn stop/play");
 
         std::this_thread::sleep_for(std::chrono::milliseconds(40));
     }
