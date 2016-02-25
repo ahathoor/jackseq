@@ -58,6 +58,7 @@ int main(int argc, char *argv[])
              if(ch == 'p') nh->sendCommand("toggle_passthrough", 0);
 
              if(ch == 'l') nh->TriggerLearn("seek", 0);
+             if(ch == 'u') nh->TriggerUnlearn("seek", 0);
          }
     }
 
@@ -80,6 +81,9 @@ void draw(){
         addstr("\n");
         addstr("event count: ");
         addstr(std::to_string(nh->event_count()).c_str());
+        addstr("\n");
+        addstr("learning: ");
+        addstr(nh->learning_status().c_str());
         addstr("\n");
         addstr("\n");
 
@@ -107,7 +111,7 @@ void draw(){
 
         addstr("\n");
         addstr("\n");
-        addstr("(l) MIDI learn stop/play");
+        addstr("(l) learn stop/play trigger (u) unlearn stop/play trigger");
 
         std::this_thread::sleep_for(std::chrono::milliseconds(40));
     }

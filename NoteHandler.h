@@ -44,7 +44,9 @@ public:
     void sendCommand(std::string command, double arg);
     void TriggerLearn(std::string command, double arg);
     void TriggerUnlearn(std::string command, double arg);
+
     int event_count() { return store.size();}
+    std::string learning_status() { return (trigger_learning.first.length() > 0) ? (trigger_learning.first + " " + std::to_string(trigger_learning.second)) : "none" ;}
     NoteHandlerState state;
 private:
     int window_size = 0;

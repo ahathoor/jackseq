@@ -46,6 +46,8 @@ void NoteHandler::TriggerLearn(std::string command, double arg) {
 void NoteHandler::TriggerUnlearn(std::string command, double arg) {
     if(commands.find(command) != commands.end())
         trigger_unlearning = std::make_pair(command, arg);
+    if(trigger_learning.first == command && trigger_learning.second == arg)
+        trigger_learning.first = "";
 }
 
 void NoteHandler::JackEngineTickHandler(int nframes) {
@@ -82,18 +84,20 @@ void NoteHandler::JackEngineNoteHandler(Note *note, int offset) {
 }
 
 void NoteHandler::JackEngineTriggerHandler(Note *note, int offset) {
+    //remove the trigger that has been marked for unlearning, if present
     std::string a = trigger_unlearning.first;
     double b = trigger_unlearning.second;
     triggers.erase(std::remove_if(triggers.begin(), triggers.end(),
                            [a,b](trigger t) { return (t.command == a && t.arg == b); }), triggers.end());
-
+    trigger_unlearning.first = "";
+    //add all the triggered commands to the command queue
     for(trigger t : triggers) {
         if(t.note.channel == note->channel &&
                 t.note.note == note->note &&
                 t.note.type == note->type)
             this->sendCommand(t.command,t.arg);
     }
-
+    //learn a new trigger, if there is a new trigger to learn
     if(commands.find(trigger_learning.first) != commands.end()) {
         trigger t = {trigger_learning.first, trigger_learning.second, Note(*note)};
         triggers.push_back(t);
