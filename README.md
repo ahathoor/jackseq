@@ -1,5 +1,7 @@
 # jackseq
 
-The goal of this project is to build a small sequencer module for JACK MIDI.
-The sequencer will be able to record and playback sequences of MIDI -events
-The playing of the sequence can be triggered using MIDI -events.
+A little Jack MIDI recorder, controllable by MIDI triggers or through a little included TUI.
+
+Just clone the project somewhere, and build and run it by issuing `make` and `./main`.
+
+Depends on libncurses and libjack.
