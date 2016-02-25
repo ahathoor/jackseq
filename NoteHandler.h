@@ -62,13 +62,13 @@ private:
     std::pair<std::string, double> trigger_learning;
     std::pair<std::string, double> trigger_unlearning;
 
-    void rewind(double arg) {state.internal_frame = 0;}
     void seek(double where) {state.internal_frame = where;}
     void stop(double arg) { state.rolling = false;}
     void start(double arg) { state.rolling = true;}
     void toggle_recording(double arg) { state.recording = !state.recording;}
     void toggle_rolling(double arg) { state.rolling = !state.rolling;}
     void toggle_waiting(double arg) { state.wait_for_input = !state.wait_for_input;}
+    void clear_notes(double arg) { store.clear() ;}
 };
 
 #endif /* NOTEHANDLER_H */

@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
              if(ch == 'w') nh->sendCommand("toggle_waiting", 0);
              if(ch == 's') nh->sendCommand("toggle_rolling", 0);
              if(ch == 'a') nh->sendCommand("seek", 0);
+             if(ch == 'c') nh->sendCommand("clear_notes", 0);
 
              if(ch == 'i') nh->TriggerLearn("toggle_rolling", 0);
              if(ch == 'o') nh->TriggerLearn("seek", 0);
@@ -76,7 +77,7 @@ void draw(){
         addstr("(q) quit (r) Toggle recording (w) toggle wait_for_input");
 
         addstr("\n");
-        addstr("(s) stop/play (a) rewind");
+        addstr("(s) stop/play (a) rewind (c) clear notes");
 
         addstr("\n");
         addstr("\n");

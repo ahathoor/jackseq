@@ -23,13 +23,13 @@
 #include <algorithm>
 
 NoteHandler::NoteHandler() {
-    commands["rewind"] = &NoteHandler::rewind;
     commands["stop"] = &NoteHandler::stop;
     commands["start"] = &NoteHandler::start;
     commands["seek"] = &NoteHandler::seek;
     commands["toggle_recording"] = &NoteHandler::toggle_recording;
     commands["toggle_rolling"] = &NoteHandler::toggle_rolling;
     commands["toggle_waiting"] = &NoteHandler::toggle_waiting;
+    commands["clear_notes"] = &NoteHandler::clear_notes;
 }
 
 void NoteHandler::sendCommand(std::string command, double arg) {
