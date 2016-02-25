@@ -58,10 +58,9 @@ void NoteHandler::JackEngineTickHandler(int nframes) {
     }
 
     if(!state.rolling) return;
-    window_size = nframes;
 
     //add the proper notes from the notestore to the play queue
-    for(auto it = store.lower_bound (state.internal_frame); it != store.end() && it->first < state.internal_frame+window_size; it++) {
+    for(auto it = store.lower_bound (state.internal_frame); it != store.end() && it->first < state.internal_frame+nframes; it++) {
         for (auto &note : it->second) {
             play_queue[it->first].push_back(note);
         }
@@ -112,7 +111,9 @@ void NoteHandler::JackEnginePlayFunctionHandler(void(*play_fn)(Note*, int)) {
         }
     }
     play_queue.clear();
+}
 
+void NoteHandler::JackEnginePostTickHandler(int nframes) {
     if(state.rolling)
-        state.internal_frame += window_size;
+        state.internal_frame += nframes;
 }

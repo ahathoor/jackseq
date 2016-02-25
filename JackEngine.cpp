@@ -129,6 +129,7 @@ int JackEngine::process(jack_nframes_t nframes) {
     jack_midi_clear_buffer(outbuf);
     this->callbackProvider->JackEnginePlayFunctionHandler(play_fn);
 
+    this->callbackProvider->JackEnginePostTickHandler(nframes);
 
     return 0;
 }

@@ -41,6 +41,7 @@ public:
     void JackEngineNoteHandler(Note*, int offset);
     void JackEngineTriggerHandler(Note*, int offset);
     void JackEnginePlayFunctionHandler(void (*play_fn)(Note*, int offset));
+    void JackEnginePostTickHandler(int nframes);
     void sendCommand(std::string command, double arg);
     void TriggerLearn(std::string command, double arg);
     void TriggerUnlearn(std::string command, double arg);
