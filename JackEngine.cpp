@@ -32,8 +32,12 @@ jack_client_t *client;
 jack_port_t *input_port;
 jack_port_t *output_port;
 jack_port_t *trigger_port;
+const char *client_name;
+const char *server_name;
 
 int process(jack_nframes_t nframes, void* arg);
+
+const char* JackEngine::getName() {return client_name;}
 
 void play_fn(Note* note, int offset) {
     jack_midi_data_t data[] = {(unsigned char)(note->channel | note->type),(unsigned char)note->note, (unsigned char)note->velocity};
@@ -51,13 +55,13 @@ int Process_Callback(jack_nframes_t x, void* p)
 
 void JackEngine::init() {
     std::cout << "Connecting to Jack..." << std::endl;
-    const char *client_name = "JackSeq";
-    const char *server_name = NULL;
+    client_name = "JackSeq";
+    server_name = NULL;
     jack_options_t options = JackNullOption;
     jack_status_t status;
 
     /* open a client connection to the JACK server */
-    
+
     client = jack_client_open(client_name, options, &status, server_name);
 
     if (client == NULL) {
@@ -70,7 +74,7 @@ void JackEngine::init() {
     std::cout << "Client name: " << client_name << std::endl;
 
     jack_set_process_callback(client, Process_Callback, this);
-    
+
     /* create the ports */
 
     input_port = jack_port_register(client, "MIDI IN",
@@ -87,7 +91,7 @@ void JackEngine::init() {
         std::cout << "No Jack Ports available" << std::endl;
         exit(1);
     }
-    
+
     if (jack_activate(client)) {
         std::cout << "Cannot activate client" << std::endl;
         exit(1);
@@ -101,7 +105,7 @@ void JackEngine::shutdown() {
 
 
 int JackEngine::process(jack_nframes_t nframes) {
-    this->callbackProvider->JackEngineTickHandler(nframes);
+
 
     inbuf = jack_port_get_buffer(input_port, nframes);
     for (uint32_t i = 0; i < jack_midi_get_event_count(inbuf); i++) {
@@ -111,10 +115,6 @@ int JackEngine::process(jack_nframes_t nframes) {
         this->callbackProvider->JackEngineNoteHandler(n, event.time);
     }
 
-    outbuf = jack_port_get_buffer(output_port, nframes);
-    jack_midi_clear_buffer(outbuf);
-    this->callbackProvider->JackEnginePlayFunctionHandler(play_fn);
-
     trigbuf = jack_port_get_buffer(trigger_port, nframes);
     for (uint32_t i = 0; i < jack_midi_get_event_count(trigbuf); i++) {
         jack_midi_event_t event;
@@ -123,6 +123,12 @@ int JackEngine::process(jack_nframes_t nframes) {
         this->callbackProvider->JackEngineTriggerHandler(n, event.time);
     }
 
+    this->callbackProvider->JackEngineTickHandler(nframes);
+
+    outbuf = jack_port_get_buffer(output_port, nframes);
+    jack_midi_clear_buffer(outbuf);
+    this->callbackProvider->JackEnginePlayFunctionHandler(play_fn);
+
+
     return 0;
 }
-

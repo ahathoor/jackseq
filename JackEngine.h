@@ -28,6 +28,7 @@ public:
     int process(jack_nframes_t nframes);
     void init();
     void shutdown();
+    const char* getName();
 private:
     IJackEngineCallbackProvider *callbackProvider;
 };

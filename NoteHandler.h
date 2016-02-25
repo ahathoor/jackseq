@@ -28,8 +28,9 @@
 typedef struct {
     bool pass_through = true;
     bool recording = true;
-    bool rolling = true;
+    bool rolling = false;
     bool wait_for_input = true;
+    double internal_frame = 0;
 } NoteHandlerState;
 
 class NoteHandler : public IJackEngineCallbackProvider{
@@ -43,9 +44,8 @@ public:
     void sendCommand(std::string command, double arg);
     void TriggerLearn(std::string command, double arg);
     void TriggerUnlearn(std::string command, double arg);
-private:
     NoteHandlerState state;
-    double internal_frame = 0;
+private:
     int window_size = 0;
 
     struct trigger{
@@ -62,10 +62,13 @@ private:
     std::pair<std::string, double> trigger_learning;
     std::pair<std::string, double> trigger_unlearning;
 
-    void rewind(double arg) {internal_frame = 0;};
-    void seek(double where) {internal_frame = where;};
-    void stop(double arg) { state.rolling = false;};
-    void start(double arg) { state.rolling = true;};
+    void rewind(double arg) {state.internal_frame = 0;}
+    void seek(double where) {state.internal_frame = where;}
+    void stop(double arg) { state.rolling = false;}
+    void start(double arg) { state.rolling = true;}
+    void toggle_recording(double arg) { state.recording = !state.recording;}
+    void toggle_rolling(double arg) { state.rolling = !state.rolling;}
+    void toggle_waiting(double arg) { state.wait_for_input = !state.wait_for_input;}
 };
 
 #endif /* NOTEHANDLER_H */

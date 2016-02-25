@@ -23,16 +23,13 @@
 #include <algorithm>
 
 NoteHandler::NoteHandler() {
-    state.pass_through = true;
-    state.recording = true;
-    state.rolling = true;
-
     commands["rewind"] = &NoteHandler::rewind;
     commands["stop"] = &NoteHandler::stop;
     commands["start"] = &NoteHandler::start;
     commands["seek"] = &NoteHandler::seek;
-
-    TriggerLearn("seek", 0);
+    commands["toggle_recording"] = &NoteHandler::toggle_recording;
+    commands["toggle_rolling"] = &NoteHandler::toggle_rolling;
+    commands["toggle_waiting"] = &NoteHandler::toggle_waiting;
 }
 
 void NoteHandler::sendCommand(std::string command, double arg) {
@@ -51,18 +48,17 @@ void NoteHandler::TriggerUnlearn(std::string command, double arg) {
 }
 
 void NoteHandler::JackEngineTickHandler(int nframes) {
+    //execute and discard all queued commands
     for(auto cmd_pair : command_queue) {
         CALL_MEMBER_FN(*this, commands[cmd_pair.first])(cmd_pair.second);
         command_queue.clear();
     }
-    if((int)internal_frame % 48000 < 2)
-        std::cout << internal_frame/48000 << "s" << std::endl;
 
     if(!state.rolling) return;
-    internal_frame += nframes;
     window_size = nframes;
 
-    for(auto it = store.lower_bound (internal_frame); it != store.end() && it->first < internal_frame+window_size; it++) {
+    //add the proper notes from the notestore to the play queue
+    for(auto it = store.lower_bound (state.internal_frame); it != store.end() && it->first < state.internal_frame+window_size; it++) {
         for (auto &note : it->second) {
             play_queue[it->first].push_back(note);
         }
@@ -70,14 +66,17 @@ void NoteHandler::JackEngineTickHandler(int nframes) {
 }
 
 void NoteHandler::JackEngineNoteHandler(Note *note, int offset) {
+    //If we are waiting for input, start rolling
     if(state.wait_for_input) {
         state.rolling = true;
         state.wait_for_input = false;
     }
-    double timeForNote = internal_frame + offset;
+    //put the incoming notes into the store if recording,
+    //and straight to the playback queue if passthrough is enabled
+    double timeForNote = state.internal_frame + offset;
     if (state.rolling && state.recording)
         store[timeForNote].push_back(note);
-    if (state.pass_through)
+    else if (state.pass_through)
         play_queue[timeForNote].push_back(note);
 }
 
@@ -104,11 +103,11 @@ void NoteHandler::JackEngineTriggerHandler(Note *note, int offset) {
 void NoteHandler::JackEnginePlayFunctionHandler(void(*play_fn)(Note*, int)) {
     for(auto it = play_queue.begin(); it != play_queue.end(); it++) {
         for (auto &note : it->second) {
-            play_fn(note, it->first - internal_frame);
+            play_fn(note, it->first - state.internal_frame);
         }
     }
     play_queue.clear();
+
+    if(state.rolling)
+        state.internal_frame += window_size;
 }
-
-
-
