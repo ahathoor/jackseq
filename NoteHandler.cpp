@@ -19,8 +19,8 @@
 #define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
 
 #include "NoteHandler.h"
-#include <iostream>
 #include <algorithm>
+#include <fstream>
 
 NoteHandler::NoteHandler() {
     commands["stop"] = &NoteHandler::stop;
@@ -104,7 +104,7 @@ void NoteHandler::JackEngineTriggerHandler(Note *note, int offset) {
     }
 }
 
-void NoteHandler::JackEnginePlayFunctionHandler(void(*play_fn)(Note*, int)) {
+void NoteHandler::JackEnginePlayFunctionHandler(std::function<void(Note*,int)> play_fn) {
     for(auto it = play_queue.begin(); it != play_queue.end(); it++) {
         for (auto &note : it->second) {
             play_fn(note, it->first - state.internal_frame);
@@ -116,4 +116,25 @@ void NoteHandler::JackEnginePlayFunctionHandler(void(*play_fn)(Note*, int)) {
 void NoteHandler::JackEnginePostTickHandler(int nframes) {
     if(state.rolling)
         state.internal_frame += nframes;
+}
+
+void NoteHandler::Save(std::string filename) {
+    std::ofstream file;
+    file.open (filename);
+    for (auto timestamp_notes : store)
+        for (Note *note : timestamp_notes.second)
+            file << timestamp_notes.first << "\t" << note->to_string();
+    file.close();
+}
+
+void NoteHandler::Open(std::string filename) {
+    std::string line;
+    std::ifstream file (filename);
+    if (file.is_open())
+    {
+      while ( getline (file,line) )
+      {
+      }
+      file.close();
+    }
 }

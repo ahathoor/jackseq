@@ -20,6 +20,7 @@
 #define IJACKENGINECALLBACKPROVIDER_H
 
 #include "Note.h"
+#include <functional>
 
 class IJackEngineCallbackProvider {
 public:
@@ -27,7 +28,7 @@ public:
     virtual void JackEngineTickHandler(int nframes) = 0;
     virtual void JackEngineNoteHandler(Note* note, int offset) = 0;
     virtual void JackEngineTriggerHandler(Note* note, int offset) = 0;
-    virtual void JackEnginePlayFunctionHandler(void (*play_fn)(Note*, int offset)) = 0;
+    virtual void JackEnginePlayFunctionHandler(std::function<void(Note*,int)> play_fn) = 0;
     virtual void JackEnginePostTickHandler(int nframes) = 0;
 };
 

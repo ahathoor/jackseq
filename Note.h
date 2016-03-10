@@ -20,13 +20,14 @@
 #define NOTE_H
 
 #include <stdint.h>
+#include <string>
 
 class Note {
 public:
     Note(int channel, int type, int note, int velocity);
     Note(unsigned char* event);
     int is_noteon();
-    void print_note();
+    std::string to_string();
     int id;
     int channel;
     int type;

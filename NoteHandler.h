@@ -40,7 +40,7 @@ public:
     void JackEngineTickHandler(int nframes);
     void JackEngineNoteHandler(Note*, int offset);
     void JackEngineTriggerHandler(Note*, int offset);
-    void JackEnginePlayFunctionHandler(void (*play_fn)(Note*, int offset));
+    void JackEnginePlayFunctionHandler(std::function<void(Note*,int)> play_fn);
     void JackEnginePostTickHandler(int nframes);
     void sendCommand(std::string command, double arg);
     void TriggerLearn(std::string command, double arg);
@@ -49,6 +49,9 @@ public:
     int event_count() { return store.size();}
     std::string learning_status() { return (trigger_learning.first.length() > 0) ? (trigger_learning.first + " " + std::to_string(trigger_learning.second)) : "none" ;}
     NoteHandlerState state;
+
+    void Save(std::string filename);
+    void Open(std::string filename);
 private:
     int window_size = 0;
 

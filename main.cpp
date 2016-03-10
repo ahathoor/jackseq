@@ -28,6 +28,7 @@
 NoteHandler *nh = new NoteHandler();
 JackEngine *je = new JackEngine(nh);
 void draw();
+bool over = false;
 
 int main(int argc, char *argv[])
 {
@@ -61,13 +62,14 @@ int main(int argc, char *argv[])
              if(ch == 'u') nh->TriggerUnlearn("seek", 0);
          }
     }
-
+    over = true;
+    dt.join();
     endwin();
     return 0;
 }
 
 void draw(){
-    for(;;) {
+    for(;!over;) {
         move(0,0);
         addstr(je->getName());
         addstr("\n");
