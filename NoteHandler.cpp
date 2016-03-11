@@ -21,6 +21,7 @@
 #include "NoteHandler.h"
 #include <algorithm>
 #include <fstream>
+#include <sstream>
 
 NoteHandler::NoteHandler() {
     commands["stop"] = &NoteHandler::stop;
@@ -123,17 +124,28 @@ void NoteHandler::Save(std::string filename) {
     file.open (filename);
     for (auto timestamp_notes : store)
         for (Note *note : timestamp_notes.second)
-            file << timestamp_notes.first << "\t" << note->to_string();
+            file << "n " << timestamp_notes.first << " " << note->to_string() << std::endl;
     file.close();
 }
+
+
+#include <iostream>
 
 void NoteHandler::Open(std::string filename) {
     std::string line;
     std::ifstream file (filename);
     if (file.is_open())
     {
+      store.clear();
       while ( getline (file,line) )
       {
+          std::string buf;
+          std::stringstream ss(line);
+          std::vector<std::string> tokens;
+          while (ss >> buf)
+                  tokens.push_back(buf);
+          if (tokens[0] == "n")
+              store[std::stod(tokens[1])].push_back(new Note(std::stoi(tokens[2]),std::stoi(tokens[3]),std::stoi(tokens[4]),std::stoi(tokens[5])));
       }
       file.close();
     }

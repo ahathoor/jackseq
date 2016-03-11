@@ -1,6 +1,7 @@
 #include "NoteHandler.h"
 #include "Note.h"
 #include <iostream>
+#include <fstream>
 #include <functional>
 
 void p(std::string t) {
@@ -9,6 +10,24 @@ void p(std::string t) {
 
 void print(Note* n, int offset) {
     std::cout << n->to_string() << std::endl;
+}
+
+int save_and_load_note() {
+    NoteHandler *nh = new NoteHandler();
+    Note *n = new Note(1,2,3,4);
+    bool passed;
+    std::string tmpfilename = std::tmpnam(nullptr);
+    nh->JackEngineNoteHandler(n,0);
+    nh->JackEngineTickHandler(100);
+    nh->Save(tmpfilename);
+    nh->Open(tmpfilename);
+    nh->sendCommand("seek", 0);
+    nh->JackEngineTickHandler(100);
+    nh->JackEnginePlayFunctionHandler( [&] (Note* n, int o) -> void {
+            passed = (o==0 && n->channel == 1 && n->type == 2 && n->note == 3 && n->velocity == 4);
+    });
+    std::remove(tmpfilename.c_str());
+    return passed;
 }
 
 int add_one_and_play() {
@@ -80,7 +99,8 @@ int main(int argc, char *argv[])
 
     if(
             runTest(add_one_and_play, "Add a note and play immediately") &&
-            runTest(add_several_and_play, "Add several notes and play immediately")
+            runTest(add_several_and_play, "Add several notes and play immediately") &&
+            runTest(save_and_load_note, "Save and load note to file")
     )
     {
         std::cout << "\033[1;32m" << "ALL TESTS PASSED" << "\033[0m" << std::endl;

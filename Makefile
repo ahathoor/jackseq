@@ -12,7 +12,7 @@ all: $(OBJECTS)
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm *.o main tests
+	@rm -rf *.o main tests ||: 2> /dev/null
 
 test: $(OBJECTS)
 	$(CC) $(OBJECTS) tests.cpp $(LDFLAGS) -o tests
