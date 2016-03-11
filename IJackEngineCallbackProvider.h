@@ -29,7 +29,7 @@ public:
     virtual void JackEngineNoteHandler(Note* note, int offset) = 0;
     virtual void JackEngineTriggerHandler(Note* note, int offset) = 0;
     virtual void JackEnginePlayFunctionHandler(std::function<void(Note*,int)> play_fn) = 0;
-    virtual void JackEnginePostTickHandler(int nframes) = 0;
+    virtual void JackEnginePostTickHandler() = 0;
 };
 
 #endif /* IJACKENGINECALLBACKPROVIDER_H */

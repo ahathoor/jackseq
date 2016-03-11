@@ -41,7 +41,7 @@ public:
     void JackEngineNoteHandler(Note*, int offset);
     void JackEngineTriggerHandler(Note*, int offset);
     void JackEnginePlayFunctionHandler(std::function<void(Note*,int)> play_fn);
-    void JackEnginePostTickHandler(int nframes);
+    void JackEnginePostTickHandler();
     void sendCommand(std::string command, double arg);
     void TriggerLearn(std::string command, double arg);
     void TriggerUnlearn(std::string command, double arg);
@@ -53,7 +53,7 @@ public:
     void Save(std::string filename);
     void Open(std::string filename);
 private:
-    int window_size = 0;
+    int tick_size = 0;
 
     struct trigger{
         std::string command;

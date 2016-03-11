@@ -60,6 +60,8 @@ void NoteHandler::JackEngineTickHandler(int nframes) {
 
     if(!state.rolling) return;
 
+    //set the tick size for the post-tick operation
+    tick_size = nframes;
     //add the proper notes from the notestore to the play queue
     for(auto it = store.lower_bound (state.internal_frame); it != store.end() && it->first < state.internal_frame+nframes; it++) {
         for (auto &note : it->second) {
@@ -114,9 +116,9 @@ void NoteHandler::JackEnginePlayFunctionHandler(std::function<void(Note*,int)> p
     play_queue.clear();
 }
 
-void NoteHandler::JackEnginePostTickHandler(int nframes) {
+void NoteHandler::JackEnginePostTickHandler() {
     if(state.rolling)
-        state.internal_frame += nframes;
+        state.internal_frame += tick_size;
 }
 
 void NoteHandler::Save(std::string filename) {
