@@ -12,6 +12,23 @@ void print(Note* n, int offset) {
     std::cout << n->to_string() << std::endl;
 }
 
+int tick_test() {
+    bool passed = false;
+    NoteHandler *nh = new NoteHandler();
+    nh->state.rolling = true;
+    nh->JackEngineTickHandler(100);
+    nh->JackEnginePostTickHandler();
+    passed = (nh->state.internal_frame == 100);
+    nh->JackEngineTickHandler(9999);
+    nh->JackEnginePostTickHandler();
+    passed = passed && (nh->state.internal_frame == 100 + 9999);
+    nh->state.rolling = false;
+    nh->JackEngineTickHandler(777);
+    nh->JackEnginePostTickHandler();
+    passed = passed && (nh->state.internal_frame == 100 + 9999);
+    return passed;
+}
+
 int save_and_load_note() {
     NoteHandler *nh = new NoteHandler();
     Note *n = new Note(1,2,3,4);
@@ -100,7 +117,8 @@ int main(int argc, char *argv[])
     if(
             runTest(add_one_and_play, "Add a note and play immediately") &&
             runTest(add_several_and_play, "Add several notes and play immediately") &&
-            runTest(save_and_load_note, "Save and load note to file")
+            runTest(save_and_load_note, "Save and load note to file") &&
+            runTest(tick_test, "Tick the nh forwards and see that it keeps the right time")
     )
     {
         std::cout << "\033[1;32m" << "ALL TESTS PASSED" << "\033[0m" << std::endl;
