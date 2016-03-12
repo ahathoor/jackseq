@@ -12,20 +12,38 @@ void print(Note* n, int offset) {
     std::cout << n->to_string() << std::endl;
 }
 
+int state_changing_commands_test() {
+    bool passed = false;
+    NoteHandler *nh = new NoteHandler();
+    nh->sendCommand("set_rolling", 1);
+    nh->sendCommand("set_recording", 1);
+    nh->sendCommand("set_waiting", 1);
+    nh->sendCommand("set_passthrough", 1);
+    nh->JackEngineTickHandler(0);
+    passed = (nh->isRolling() && nh->isRecording() && nh->isWaitingForInput() && nh->isPassingThrough());
+    nh->sendCommand("set_rolling", 0);
+    nh->sendCommand("set_recording", 0);
+    nh->sendCommand("set_waiting", 0);
+    nh->sendCommand("set_passthrough", 0);
+    nh->JackEngineTickHandler(0);
+    passed = passed && (!nh->isRolling() && !nh->isRecording() && !nh->isWaitingForInput() && !nh->isPassingThrough());
+    return passed;
+}
+
 int tick_test() {
     bool passed = false;
     NoteHandler *nh = new NoteHandler();
-    nh->state.rolling = true;
+    nh->sendCommand("set_rolling", 1);
     nh->JackEngineTickHandler(100);
     nh->JackEnginePostTickHandler();
-    passed = (nh->state.internal_frame == 100);
+    passed = (nh->current_frame() == 100);
     nh->JackEngineTickHandler(9999);
     nh->JackEnginePostTickHandler();
-    passed = passed && (nh->state.internal_frame == 100 + 9999);
-    nh->state.rolling = false;
+    passed = passed && (nh->current_frame() == 100 + 9999);
+    nh->sendCommand("set_rolling", 0);
     nh->JackEngineTickHandler(777);
     nh->JackEnginePostTickHandler();
-    passed = passed && (nh->state.internal_frame == 100 + 9999);
+    passed = passed && (nh->current_frame() == 100 + 9999);
     return passed;
 }
 
@@ -118,7 +136,8 @@ int main(int argc, char *argv[])
             runTest(add_one_and_play, "Add a note and play immediately") &&
             runTest(add_several_and_play, "Add several notes and play immediately") &&
             runTest(save_and_load_note, "Save and load note to file") &&
-            runTest(tick_test, "Tick the nh forwards and see that it keeps the right time")
+            runTest(tick_test, "Tick the nh forwards and see that it keeps the right time") &&
+            runTest(state_changing_commands_test, "Test the commands that affect the player state")
     )
     {
         std::cout << "\033[1;32m" << "ALL TESTS PASSED" << "\033[0m" << std::endl;

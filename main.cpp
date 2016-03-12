@@ -51,12 +51,12 @@ int main(int argc, char *argv[])
          }
          else {
              if(ch == 'q') break;
-             if(ch == 'r') nh->sendCommand("toggle_recording", 0);
-             if(ch == 'w') nh->sendCommand("toggle_waiting", 0);
-             if(ch == 's') nh->sendCommand("toggle_rolling", 0);
+             if(ch == 'r') nh->sendCommand("set_recording", !nh->isRecording());
+             if(ch == 'w') nh->sendCommand("set_waiting", !nh->isWaitingForInput());
+             if(ch == 's') nh->sendCommand("set_rolling", !nh->isRolling());
              if(ch == 'a') nh->sendCommand("seek", 0);
              if(ch == 'c') nh->sendCommand("clear_notes", 0);
-             if(ch == 'p') nh->sendCommand("toggle_passthrough", 0);
+             if(ch == 'p') nh->sendCommand("set_passthrough", !nh->isPassingThrough());
 
              if(ch == 'l') nh->TriggerLearn("seek", 0);
              if(ch == 'u') nh->TriggerUnlearn("seek", 0);
@@ -79,7 +79,7 @@ void draw(){
 
 
         addstr("frame: ");
-        addstr(std::to_string(nh->state.internal_frame).c_str());
+        addstr(std::to_string(nh->current_frame()).c_str());
         addstr("\n");
         addstr("event count: ");
         addstr(std::to_string(nh->event_count()).c_str());
@@ -89,19 +89,19 @@ void draw(){
         addstr("\n");
         addstr("\n");
 
-        addstr(nh->state.recording ? "[x]" : "[ ]");
+        addstr(nh->isRecording() ? "[x]" : "[ ]");
         addstr("RECORDING");
 
         addstr("\n");
-        addstr(nh->state.rolling ? "[x]" : "[ ]");
+        addstr(nh->isRolling() ? "[x]" : "[ ]");
         addstr("ROLLING");
 
         addstr("\n");
-        addstr(nh->state.wait_for_input ? "[x]" : "[ ]");
+        addstr(nh->isWaitingForInput() ? "[x]" : "[ ]");
         addstr("WAITING_FOR_INPUT");
 
         addstr("\n");
-        addstr(nh->state.pass_through ? "[x]" : "[ ]");
+        addstr(nh->isPassingThrough() ? "[x]" : "[ ]");
         addstr("PASS_THROUGH");
 
         addstr("\n");

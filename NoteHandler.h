@@ -46,14 +46,20 @@ public:
     void TriggerLearn(std::string command, double arg);
     void TriggerUnlearn(std::string command, double arg);
 
-    int event_count() { return store.size();}
     std::string learning_status() { return (trigger_learning.first.length() > 0) ? (trigger_learning.first + " " + std::to_string(trigger_learning.second)) : "none" ;}
-    NoteHandlerState state;
 
     void Save(std::string filename);
     void Open(std::string filename);
+    bool isRolling() { return state.rolling; }
+    bool isRecording() { return state.recording; }
+    bool isPassingThrough() { return state.pass_through; }
+    bool isWaitingForInput() { return state.wait_for_input; }
+    double current_frame() { return state.internal_frame; }
+    int event_count() { return store.size();}
+
 private:
     int tick_size = 0;
+    NoteHandlerState state;
 
     struct trigger{
         std::string command;
@@ -72,10 +78,10 @@ private:
     void seek(double where) {state.internal_frame = where;}
     void stop(double arg) { state.rolling = false;}
     void start(double arg) { state.rolling = true;}
-    void toggle_recording(double arg) { state.recording = !state.recording;}
-    void toggle_rolling(double arg) { state.rolling = !state.rolling;}
-    void toggle_waiting(double arg) { state.wait_for_input = !state.wait_for_input;}
-    void toggle_passthrough(double arg) { state.pass_through = !state.pass_through;}
+    void set_recording(double arg) { state.recording = (arg != 0);}
+    void set_rolling(double arg) { state.rolling = (arg != 0);}
+    void set_waiting(double arg) { state.wait_for_input = (arg != 0);}
+    void set_passthrough(double arg) { state.pass_through = (arg != 0);}
     void clear_notes(double arg) { store.clear() ;}
 };
 

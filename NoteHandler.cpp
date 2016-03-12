@@ -27,10 +27,10 @@ NoteHandler::NoteHandler() {
     commands["stop"] = &NoteHandler::stop;
     commands["start"] = &NoteHandler::start;
     commands["seek"] = &NoteHandler::seek;
-    commands["toggle_recording"] = &NoteHandler::toggle_recording;
-    commands["toggle_rolling"] = &NoteHandler::toggle_rolling;
-    commands["toggle_waiting"] = &NoteHandler::toggle_waiting;
-    commands["toggle_passthrough"] = &NoteHandler::toggle_passthrough;
+    commands["set_recording"] = &NoteHandler::set_recording;
+    commands["set_rolling"] = &NoteHandler::set_rolling;
+    commands["set_waiting"] = &NoteHandler::set_waiting;
+    commands["set_passthrough"] = &NoteHandler::set_passthrough;
     commands["clear_notes"] = &NoteHandler::clear_notes;
 }
 
