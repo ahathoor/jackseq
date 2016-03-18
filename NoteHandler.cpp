@@ -127,6 +127,8 @@ void NoteHandler::Save(std::string filename) {
     for (auto timestamp_notes : store)
         for (Note *note : timestamp_notes.second)
             file << "n " << timestamp_notes.first << " " << note->to_string() << std::endl;
+    for (trigger t : triggers)
+        file << "t " << t.note.to_string() << " " << t.command << " " << t.arg << std::endl;
     file.close();
 }
 
@@ -139,8 +141,7 @@ void NoteHandler::Open(std::string filename) {
     if (file.is_open())
     {
       store.clear();
-      while ( getline (file,line) )
-      {
+      while ( getline (file,line) ) {
           std::string buf;
           std::stringstream ss(line);
           std::vector<std::string> tokens;
@@ -148,6 +149,11 @@ void NoteHandler::Open(std::string filename) {
                   tokens.push_back(buf);
           if (tokens[0] == "n")
               store[std::stod(tokens[1])].push_back(new Note(std::stoi(tokens[2]),std::stoi(tokens[3]),std::stoi(tokens[4]),std::stoi(tokens[5])));
+          if (tokens[0] == "t") {
+              Note t_note = Note(std::stoi(tokens[1]),std::stoi(tokens[2]),std::stoi(tokens[3]),std::stoi(tokens[4]));
+              trigger new_t = {tokens[5], std::stod(tokens[6]), t_note};
+              triggers.push_back(new_t);
+          }
       }
       file.close();
     }

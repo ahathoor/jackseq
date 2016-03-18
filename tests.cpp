@@ -12,6 +12,25 @@ void print(Note* n, int offset) {
     std::cout << n->to_string() << std::endl;
 }
 
+int save_and_load_trigger() {
+    bool passed;
+    NoteHandler *nh = new NoteHandler();
+    nh->TriggerLearn("seek", 123);
+    nh->JackEngineTriggerHandler(new Note(1,2,3,4), 0);
+    std::string tmpfilename = std::tmpnam(nullptr);
+    nh->Save(tmpfilename);
+    delete nh;
+
+    NoteHandler *nh2 = new NoteHandler();
+    nh2->Open(tmpfilename);
+    nh2->JackEngineTriggerHandler(new Note(1,2,3,4), 0);
+    nh2->JackEngineTickHandler(0);
+    passed = nh2->current_frame() == 123;
+    std::remove(tmpfilename.c_str());
+    delete nh2;
+    return passed;
+}
+
 int state_changing_commands_test() {
     bool passed = false;
     NoteHandler *nh = new NoteHandler();
@@ -52,6 +71,7 @@ int save_and_load_note() {
     Note *n = new Note(1,2,3,4);
     bool passed;
     std::string tmpfilename = std::tmpnam(nullptr);
+    nh->sendCommand("set_rolling", 1);
     nh->JackEngineNoteHandler(n,0);
     nh->JackEngineTickHandler(100);
     nh->Save(tmpfilename);
@@ -60,6 +80,13 @@ int save_and_load_note() {
     nh->JackEngineTickHandler(100);
     nh->JackEnginePlayFunctionHandler( [&] (Note* n, int o) -> void {
             passed = (o==0 && n->channel == 1 && n->type == 2 && n->note == 3 && n->velocity == 4);
+    });
+    NoteHandler *nh2 = new NoteHandler();
+    nh2->sendCommand("set_rolling", 1);
+    nh2->Open(tmpfilename);
+    nh2->JackEngineTickHandler(100);
+    nh2->JackEnginePlayFunctionHandler( [&] (Note* n, int o) -> void {
+            passed = passed && (o==0 && n->channel == 1 && n->type == 2 && n->note == 3 && n->velocity == 4);
     });
     std::remove(tmpfilename.c_str());
     return passed;
@@ -136,6 +163,7 @@ int main(int argc, char *argv[])
             runTest(add_one_and_play, "Add a note and play immediately") &&
             runTest(add_several_and_play, "Add several notes and play immediately") &&
             runTest(save_and_load_note, "Save and load note to file") &&
+            runTest(save_and_load_trigger, "Save and load a trigger to file") &&
             runTest(tick_test, "Tick the nh forwards and see that it keeps the right time") &&
             runTest(state_changing_commands_test, "Test the commands that affect the player state")
     )
